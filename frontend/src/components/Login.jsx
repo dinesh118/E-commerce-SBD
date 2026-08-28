@@ -24,7 +24,7 @@ function Login({ onLogin, onSwitch, isAdmin }) {
   return (
     <>
       {/* Segmented Toggle */}
-      <div className="segmented-toggle">
+      <div className={`segmented-toggle ${isAdmin ? 'admin-selected' : ''}`}>
         <button
           type="button"
           className={`toggle-button ${!isAdmin ? 'active' : ''}`}

@@ -1,27 +1,18 @@
-import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import Login from '../components/Login'
-import { loginUser, loginAdmin } from '../services/api'
+import Register from '../components/Register'
+import { registerUser } from '../services/api'
 import '../styles/login.css'
 import { Heart, KeyRound, Sparkles, Star, Sun, Trophy } from 'lucide-react'
 
-function LoginPage() {
-  const [isAdmin, setIsAdmin] = useState(false)
+function RegisterPage() {
   const navigate = useNavigate()
 
-  const handleLogin = async (payload) => {
-    if (isAdmin) {
-      await loginAdmin(payload)
-      navigate('/admin')
-      return
-    }
-
-    await loginUser(payload)
-    navigate('/customer')
+  const handleRegister = async (payload) => {
+    await registerUser(payload)
   }
 
   return (
-    <div className="auth-container">
+    <div className="auth-container register-page">
       <section className="wish-art" aria-hidden="true">
         <p className="wish-art-intro">Be careful what<br /><em>you wish for</em></p>
         <div className="wish-brand-mark">ONE WISH WILLOW</div>
@@ -36,26 +27,14 @@ function LoginPage() {
       </section>
       <main className="auth-panel-right">
         <div className="auth-card">
-          <Login
-          onLogin={handleLogin}
-          onSwitch={(admin) => {
-            setIsAdmin(admin)
-          }}
-          isAdmin={isAdmin}
-          />
-
-          {!isAdmin && (
-            <div className="register-toggle">
-              <button type="button" className="register-link" onClick={() => navigate('/register')}>
-                New here? Create an account
-              </button>
-            </div>
-          )}
+          <Register onRegister={handleRegister} />
+          <button type="button" className="register-link back-to-login" onClick={() => navigate('/')}>
+            Back to login
+          </button>
         </div>
       </main>
-      </div>
+    </div>
   )
 }
 
-export default LoginPage
-
+export default RegisterPage
