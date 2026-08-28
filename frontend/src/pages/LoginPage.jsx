@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import Login from '../components/Login'
 import Register from '../components/Register'
 import { loginUser, loginAdmin, registerUser } from '../services/api'
+import '../styles/login.css'
+import { ChevronDown } from 'lucide-react'
 
 function LoginPage() {
   const [isAdmin, setIsAdmin] = useState(false)
@@ -25,20 +27,47 @@ function LoginPage() {
   }
 
   return (
-    <div className="container">
-      <Login onLogin={handleLogin} onSwitch={(admin) => { setIsAdmin(admin); setShowRegister(false) }} isAdmin={isAdmin} />
+    <div className="auth-container">
+      <div className="auth-card">
+        <Login
+          onLogin={handleLogin}
+          onSwitch={(admin) => {
+            setIsAdmin(admin)
+            setShowRegister(false)
+          }}
+          isAdmin={isAdmin}
+        />
 
-      {!isAdmin && (
-        <div>
-          <button type="button" onClick={() => setShowRegister((prev) => !prev)}>
-            {showRegister ? 'Hide Registration' : 'New User? Register'}
-          </button>
-        </div>
-      )}
+        {/* Registration Toggle Link */}
+        {!isAdmin && (
+          <div className="register-toggle">
+            <button
+              type="button"
+              className="register-link"
+              onClick={() => setShowRegister((prev) => !prev)}
+            >
+              {showRegister ? 'Hide Registration' : 'New here? Create an account'}
+              <ChevronDown
+                size={16}
+                style={{
+                  transform: showRegister ? 'rotate(180deg)' : 'rotate(0deg)',
+                  transition: 'transform 0.3s ease',
+                }}
+              />
+            </button>
+          </div>
+        )}
 
-      {showRegister && !isAdmin && <Register onRegister={handleRegister} />}
+        {/* Registration Section */}
+        {!isAdmin && (
+          <div className={`register-section ${showRegister ? 'expanded' : ''}`}>
+            <Register onRegister={handleRegister} />
+          </div>
+        )}
+      </div>
     </div>
   )
 }
 
 export default LoginPage
+
