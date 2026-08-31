@@ -7,7 +7,7 @@ from app.models.user import User
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD = "admin"
+ADMIN_PASSWORD = "admin123"
 
 
 def hash_password(password: str) -> str:
