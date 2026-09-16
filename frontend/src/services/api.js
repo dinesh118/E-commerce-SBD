@@ -52,3 +52,28 @@ export function updateProduct(productId, payload) {
     body: JSON.stringify(payload),
   })
 }
+
+export function addToCart(payload) {
+  return request('/cart', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  })
+}
+
+export function fetchCart(userId) {
+  return request(`/cart/${userId}`)
+}
+
+export function updateCartItem(cartItemId, payload) {
+  return request(`/cart/${cartItemId}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+}
+
+export function removeCartItem(cartItemId) {
+  return request(`/cart/${cartItemId}`, {
+    method: 'DELETE',
+  })
+}
+

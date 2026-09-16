@@ -1,4 +1,4 @@
-from pydantic import BaseModel, constr, conint, confloat
+from pydantic import BaseModel, ConfigDict, constr, conint, confloat
 
 class ProductBase(BaseModel):
     name: constr(min_length=1, max_length=100)
@@ -12,7 +12,6 @@ class ProductUpdate(ProductBase):
     pass
 
 class ProductResponse(ProductBase):
-    id: int
+    model_config = ConfigDict(from_attributes=True)
 
-    class Config:
-        orm_mode = True
+    id: int

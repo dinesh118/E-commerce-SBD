@@ -1,4 +1,4 @@
-from pydantic import BaseModel, constr
+from pydantic import BaseModel, ConfigDict, constr
 
 class UserRegister(BaseModel):
     username: constr(min_length=3, max_length=50)
@@ -10,8 +10,7 @@ class UserLogin(BaseModel):
     password: constr(min_length=6, max_length=128)
 
 class UserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     username: str
-
-    class Config:
-        orm_mode = True

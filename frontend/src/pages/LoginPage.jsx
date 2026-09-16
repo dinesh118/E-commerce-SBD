@@ -16,7 +16,8 @@ function LoginPage() {
       return
     }
 
-    await loginUser(payload)
+    const user = await loginUser(payload)
+    localStorage.setItem('loggedInUser', JSON.stringify(user))
     navigate('/customer')
   }
 
