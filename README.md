@@ -1,146 +1,213 @@
-# E-Commerce Learning Project (Version 0.1)
+# E-Commerce SBD
 
-## Project Overview
+This project is a learning e-commerce application built with FastAPI and React. The backend has been split into three independent services while keeping the same PostgreSQL database and preserving the existing frontend API paths for auth, products, and cart.
 
-This is a simple monolithic e-commerce learning application. It includes:
-- Customer registration and login
-- Admin login with fixed credentials
-- Product viewing for customers
-- Product add/update for admins
-- PostgreSQL database persistence
-- FastAPI backend with SQLAlchemy and Pydantic
-- React frontend with Vite
+## Project goals
 
-## Architecture
+- Separate authentication from product and cart logic
+- Keep the same PostgreSQL database for now
+- Allow each backend service to run independently
+- Preserve the existing frontend behavior as much as possible
+- Keep the app simple and suitable for learning and local development
 
-- Backend: `backend/`
-- Frontend: `frontend/`
-- Backend provides REST APIs for authentication and products.
-- Frontend communicates with backend at `http://localhost:8000`.
+## Current architecture
 
-## Technology Stack
+The application now contains:
 
-- Python
-- FastAPI
-- SQLAlchemy
-- Pydantic
-- PostgreSQL
-- React
-- Vite
-- JavaScript
+- Auth service: handles customer and admin authentication
+- Product service: handles product listing and management
+- Cart service: handles add-to-cart, fetch cart, update quantity, and remove item
+- Frontend: React + Vite UI for login, customer dashboard, admin dashboard, and cart page
 
-## Folder Structure
+## Service ports
 
-backend/
-- `app/main.py` - FastAPI application entry point
-- `app/database/connection.py` - SQLAlchemy database connection
-- `app/models/` - SQLAlchemy models for users and products
-- `app/schemas/` - Pydantic request and response schemas
-- `app/routes/` - API routes for auth and products
-- `app/services/` - Business logic for auth and products
-- `.env.example` - Example environment variables
-- `.gitignore` - Ignore local env and venv files
-- `requirements.txt` - Python dependencies
+- Auth service: 8001
+- Product service: 8002
+- Cart service: 8003
+- Frontend: 5173
 
-frontend/
-- `src/App.jsx` - React router and app shell
-- `src/main.jsx` - React entry point
-- `src/components/` - Login, registration, product list, and product form components
-- `src/pages/` - Login page, customer dashboard, admin dashboard
-- `src/services/api.js` - Fetch wrapper for backend API
-- `src/index.css` - Basic styles
-- `package.json` - Frontend dependencies and scripts
-- `vite.config.js` - Vite config
-- `.gitignore` - Ignore node_modules and build output
+## Main project structure
 
-## PostgreSQL Setup
-
-1. Install PostgreSQL.
-2. Create database:
-
-```sql
-CREATE DATABASE ecommerce_db;
+```text
+E-commerce-SBD/
+├── auth-service/
+│   ├── app/
+│   ├── requirements.txt
+│   └── .env.example
+├── product-service/
+│   ├── app/
+│   ├── requirements.txt
+│   └── .env.example
+├── cart-service/
+│   ├── app/
+│   ├── requirements.txt
+│   └── .env.example
+├── frontend/
+├── backend/   # existing monolithic backend kept for compatibility during migration
+├── README.md
+└── .gitignore
 ```
 
-3. Set `DATABASE_URL` in `backend/.env`:
+## Shared database
+
+All services currently use the same PostgreSQL database:
 
 ```env
 DATABASE_URL=postgresql://username:password@localhost:5432/ecommerce_db
 ```
 
-## Backend Setup
+The logical ownership is:
+
+- Auth service -> users
+- Product service -> products
+- Cart service -> cart_items
+
+## PostgreSQL setup
+
+1. Create the database:
+
+```sql
+CREATE DATABASE ecommerce_db;
+```
+
+2. Set the database URL in each service environment file.
+
+Example:
+
+```env
+DATABASE_URL=postgresql://dinesh:dinesh123@localhost:5432/ecommerce_db
+```
+
+If you already have a working `.env` in the old backend, you can copy it into each service folder before running the apps.
+
+## Backend service setup
+
+### Auth service
 
 ```powershell
-cd backend
-python -m venv venv
-venv\Scripts\activate
+cd E-commerce-SBD/auth-service
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
-## Frontend Setup
+### Product service
 
 ```powershell
-cd frontend
+cd E-commerce-SBD/product-service
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+### Cart service
+
+```powershell
+cd E-commerce-SBD/cart-service
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+```
+
+## Run all backend services
+
+### Auth service
+
+```powershell
+cd E-commerce-SBD/auth-service
+.\.venv\Scripts\Activate.ps1
+uvicorn app.main:app --host 0.0.0.0 --port 8001
+```
+
+### Product service
+
+```powershell
+cd E-commerce-SBD/product-service
+.\.venv\Scripts\Activate.ps1
+uvicorn app.main:app --host 0.0.0.0 --port 8002
+```
+
+### Cart service
+
+```powershell
+cd E-commerce-SBD/cart-service
+.\.venv\Scripts\Activate.ps1
+uvicorn app.main:app --host 0.0.0.0 --port 8003
+```
+
+## Frontend setup
+
+```powershell
+cd E-commerce-SBD/frontend
 npm install
+npm run dev -- --host 0.0.0.0 --port 5173
 ```
 
-## Environment Variables
+Open:
 
-- `DATABASE_URL` - PostgreSQL connection string
-
-## How to Run Backend
-
-```powershell
-cd backend
-venv\Scripts\activate
-uvicorn app.main:app --reload
+```text
+http://localhost:5173
 ```
 
-## How to Run Frontend
+## Frontend API paths
 
-```powershell
-cd frontend
-npm run dev
-```
+The frontend is designed to keep the same API path structure when routed through a gateway or reverse proxy:
 
-## API Endpoints
+- /auth/*
+- /products/*
+- /cart/*
 
-- `GET /health` - Health check
-- `POST /auth/register` - Register a new customer
-- `POST /auth/login` - Customer login
-- `POST /auth/admin-login` - Admin login (`admin` / `admin`)
-- `GET /products` - List products
-- `POST /products` - Add product
-- `PUT /products/{product_id}` - Update product
+This means the frontend does not need a major rewrite if the deployed environment proxies requests to the appropriate service.
 
-## Sample API Requests
+## Service API contracts
 
-Register:
+### Auth service
+
+- `POST /auth/register`
+- `POST /auth/login`
+- `POST /auth/admin-login`
+
+### Product service
+
+- `GET /products`
+- `POST /products`
+- `PUT /products/{product_id}`
+
+### Cart service
+
+- `POST /cart`
+- `GET /cart/{user_id}`
+- `PUT /cart/{cart_item_id}`
+- `DELETE /cart/{cart_item_id}`
+
+## Example requests
+
+### Register user
 
 ```http
 POST /auth/register
 Content-Type: application/json
 
 {
-  "username": "user1",
-  "password": "strongpass",
-  "confirm_password": "strongpass"
+  "username": "dinesh",
+  "password": "dinesh123",
+  "confirm_password": "dinesh123"
 }
 ```
 
-Customer login:
+### Customer login
 
 ```http
 POST /auth/login
 Content-Type: application/json
 
 {
-  "username": "user1",
-  "password": "strongpass"
+  "username": "dinesh",
+  "password": "dinesh123"
 }
 ```
 
-Admin login:
+### Admin login
 
 ```http
 POST /auth/admin-login
@@ -148,39 +215,67 @@ Content-Type: application/json
 
 {
   "username": "admin",
-  "password": "admin"
+  "password": "admin123"
 }
 ```
 
-Add product:
+### Get products
+
+```http
+GET /products
+```
+
+### Add product
 
 ```http
 POST /products
 Content-Type: application/json
 
 {
-  "name": "Dell Laptop",
-  "rate": 65000,
-  "stock": 10
+  "name": "iphone",
+  "rate": 50000,
+  "stock": 5
 }
 ```
 
-Update product:
+### Add item to cart
 
 ```http
-PUT /products/1
+POST /cart
 Content-Type: application/json
 
 {
-  "name": "Dell Laptop",
-  "rate": 64000,
-  "stock": 12
+  "user_id": 1,
+  "product_id": 1,
+  "quantity": 1
 }
 ```
 
-## Current Limitations
+## Notes on the migration
 
-- Admin credentials are fixed in code for version 0.1.
-- No token-based session persistence.
-- No product deletion.
-- Simple UI and no production-ready auth flows.
+- The project keeps the same PostgreSQL database for now.
+- This is a service split, not a full distributed microservice architecture.
+- No order, payment, inventory, or notification services were added.
+- The cart service avoids importing user and product SQLAlchemy models directly to keep the services independent.
+- The frontend can remain stable if requests are routed via Nginx or a gateway.
+
+## Current limitations
+
+- No authentication token system yet
+- No service-to-service communication layer yet
+- No database containerization or migration management
+- No production-level API gateway configuration yet
+- No deployment automation yet
+
+## Quick troubleshooting
+
+If the app fails to start, confirm:
+
+- PostgreSQL is running locally
+- The `.env` file contains the correct `DATABASE_URL`
+- Each service is started on the correct port
+- There is no port conflict with another local app
+
+## Important
+
+This split is intentionally scoped to the requested migration. It does not introduce unrelated services or architectural changes beyond the auth, product, and cart service split.
