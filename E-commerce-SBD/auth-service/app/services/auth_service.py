@@ -5,8 +5,6 @@ from sqlalchemy.orm import Session
 from app.models.user import User
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-ADMIN_USERNAME = "admin"
-ADMIN_PASSWORD = "admin123"
 
 
 def hash_password(password: str) -> str:
@@ -39,7 +37,8 @@ def login_user(db: Session, username: str, password: str) -> User:
     return user
 
 
-def login_admin(username: str, password: str) -> bool:
-    if username != ADMIN_USERNAME or password != ADMIN_PASSWORD:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid admin credentials")
-    return True
+def login_admin(db: Session, username: str, password: str) -> User:
+    user = login_user(db, username, password)
+    if user.role != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin role required")
+    return user

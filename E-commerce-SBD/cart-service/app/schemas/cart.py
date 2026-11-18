@@ -2,8 +2,7 @@ from pydantic import BaseModel, ConfigDict, conint
 
 
 class CartItemCreate(BaseModel):
-    user_id: int
-    product_id: int
+    product_id: conint(gt=0)
     quantity: conint(ge=1)
 
 

@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 
 from app.database.connection import Base, engine
 from app.routes.auth import router as auth_router
@@ -7,6 +8,10 @@ from app.routes.auth import router as auth_router
 # Create tables for the shared PostgreSQL database.
 # This service owns the users table.
 Base.metadata.create_all(bind=engine)
+with engine.begin() as connection:
+    connection.execute(
+        text("ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(20) NOT NULL DEFAULT 'customer'")
+    )
 
 app = FastAPI(title="Auth Service")
 

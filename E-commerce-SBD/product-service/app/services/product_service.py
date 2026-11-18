@@ -8,6 +8,13 @@ def get_all_products(db: Session):
     return db.query(Product).all()
 
 
+def get_product(db: Session, product_id: int) -> Product:
+    product = db.query(Product).filter(Product.id == product_id).first()
+    if not product:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+    return product
+
+
 def create_product(db: Session, name: str, rate: float, stock: int) -> Product:
     existing_product = db.query(Product).filter(Product.name == name).first()
     if existing_product:
@@ -18,6 +25,12 @@ def create_product(db: Session, name: str, rate: float, stock: int) -> Product:
     db.commit()
     db.refresh(product)
     return product
+
+
+def delete_product(db: Session, product_id: int) -> None:
+    product = get_product(db, product_id)
+    db.delete(product)
+    db.commit()
 
 
 def update_product(db: Session, product_id: int, name: str, rate: float, stock: int) -> Product:
